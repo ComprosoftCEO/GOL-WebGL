@@ -1,10 +1,9 @@
-// an attribute will receive data from a buffer
-attribute vec4 a_position;
+attribute vec3 coord;
+attribute vec3 color;
 
-// all shaders have a main function
+varying vec3 v_color;
+
 void main() {
-
-  // gl_Position is a special variable a vertex shader
-  // is responsible for setting
-  gl_Position = a_position;
+  gl_Position = vec4(coord, 1.0);
+  v_color = color;
 }
