@@ -17,3 +17,41 @@ export const resizeCanvasToDisplaySize = (
 
   return needResize;
 };
+
+export const createAndLoadBuffer = (
+  gl: WebGLRenderingContext,
+  type: number,
+  data: BufferSource,
+): WebGLBuffer => {
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(type, buffer);
+  gl.bufferData(type, data, gl.STATIC_DRAW);
+  gl.bindBuffer(type, null);
+
+  return buffer;
+};
+
+export const loadAndCompileShaders = (
+  gl: WebGLRenderingContext,
+  vertexShaderSrc: string,
+  fragmentShaderSrc: string,
+): WebGLProgram => {
+  const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(vertexShader, vertexShaderSrc);
+  gl.compileShader(vertexShader);
+
+  // Create the fragment shader
+  const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(fragmentShader, fragmentShaderSrc);
+  gl.compileShader(fragmentShader);
+
+  // Build the shader program
+  const shaderProgram = gl.createProgram();
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
+
+  gl.useProgram(shaderProgram);
+
+  return shaderProgram;
+};
