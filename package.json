@@ -31,6 +31,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "gl-matrix": "^3.3.0"
+    "gl-matrix": "^3.3.0",
+    "icomesh": "^1.1.0"
   }
 }
