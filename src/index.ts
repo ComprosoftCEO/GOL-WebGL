@@ -1,7 +1,7 @@
 import { resizeCanvasToDisplaySize } from './utils';
 import { mat4 } from 'gl-matrix';
 import { Sphere } from './sphere';
-import { DirectionalLight } from './light';
+import { AmbientLight, DirectionalLight } from './light';
 import { PerspectiveCamera } from './camera';
 import './canvas.css';
 import { LifeSphere } from './lifeSphere';
@@ -18,9 +18,10 @@ Sphere.loadShaders(gl);
 LifeSphere.loadShaders(gl);
 
 // Objects in our scene
-const light = new DirectionalLight([1, 0.5, 0], [0.7, 0.5, 1]);
+const ambLight = new AmbientLight(0.2);
+const dirLight = new DirectionalLight([0.7, 0.5, 1]);
 const camera = new PerspectiveCamera(45, gl.canvas.width / gl.canvas.height, 1, 100);
-const sphere = new Sphere(gl, 3);
+const sphere = new Sphere(gl, 4);
 const lifeSphere = new LifeSphere(gl, 2);
 
 mat4.translate(camera.viewMatrix, camera.viewMatrix, [0, 0, -6]);
@@ -65,12 +66,14 @@ const animate = (time: number): void => {
 
   // Redraw Everything
   let program = Sphere.loadProgram(gl);
-  light.setLightUniforms(gl, program);
+  ambLight.setLightUniforms(gl, program);
+  dirLight.setLightUniforms(gl, program);
   camera.setCameraUniforms(gl, program);
   sphere.draw(gl);
 
   program = LifeSphere.loadProgram(gl);
-  light.setLightUniforms(gl, program);
+  ambLight.setLightUniforms(gl, program);
+  dirLight.setLightUniforms(gl, program);
   camera.setCameraUniforms(gl, program);
   lifeSphere.draw(gl);
 

@@ -2,6 +2,7 @@ uniform mat4 u_modelMatrix;
 uniform mat4 u_projMatrix;
 uniform mat4 u_viewMatrix;
 
+// Vertex and height of the "nubs"
 attribute vec3 a_vertex;
 attribute vec3 a_normal;
 attribute float a_height; // 0 to height

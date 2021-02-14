@@ -44,6 +44,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
       shaders: path.resolve(__dirname, 'shaders/'),
+      img: path.resolve(__dirname, 'img/'),
     },
   },
   output: {

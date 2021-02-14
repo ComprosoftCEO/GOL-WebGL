@@ -150,7 +150,7 @@ function computeVerticesNormals(
         [sphereVertex1, sphereVertex2, sphereVertex3],
         makeVectorQuad(sphereVertex1, sphereVertex2, sphereVertex2, sphereVertex1),
         makeVectorQuad(sphereVertex3, sphereVertex1, sphereVertex1, sphereVertex3),
-        makeVectorQuad(sphereVertex3, sphereVertex2, sphereVertex2, sphereVertex3),
+        makeVectorQuad(sphereVertex2, sphereVertex3, sphereVertex3, sphereVertex2),
       ].flat(2),
       index * 21,
     );
