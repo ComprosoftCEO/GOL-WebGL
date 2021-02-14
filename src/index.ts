@@ -3,8 +3,9 @@ import { mat4 } from 'gl-matrix';
 import { Sphere } from './sphere';
 import { AmbientLight, DirectionalLight } from './light';
 import { PerspectiveCamera } from './camera';
-import './canvas.css';
 import { LifeSphere } from './lifeSphere';
+import { Skybox } from './skybox';
+import './canvas.css';
 
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
@@ -14,15 +15,17 @@ const gl = canvas.getContext('webgl');
 gl.getExtension('OES_standard_derivatives');
 
 // Static methods to load shaders
+Skybox.loadShaders(gl);
 Sphere.loadShaders(gl);
 LifeSphere.loadShaders(gl);
 
 // Objects in our scene
+const skybox = new Skybox();
 const ambLight = new AmbientLight(0.2);
 const dirLight = new DirectionalLight([0.7, 0.5, 1]);
 const camera = new PerspectiveCamera(45, gl.canvas.width / gl.canvas.height, 1, 100);
 const sphere = new Sphere(gl, 4);
-const lifeSphere = new LifeSphere(gl, 2);
+const lifeSphere = new LifeSphere(gl, 2, [1, 1, 0.5]);
 
 mat4.translate(camera.viewMatrix, camera.viewMatrix, [0, 0, -6]);
 
@@ -62,10 +65,15 @@ const animate = (time: number): void => {
 
   resizeCanvasToDisplaySize(canvas);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  camera.aspect = gl.canvas.width / gl.canvas.height;
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // Redraw Everything
-  let program = Sphere.loadProgram(gl);
+  let program = Skybox.loadProgram(gl);
+  camera.setCameraUniforms(gl, program);
+  skybox.draw(gl);
+
+  program = Sphere.loadProgram(gl);
   ambLight.setLightUniforms(gl, program);
   dirLight.setLightUniforms(gl, program);
   camera.setCameraUniforms(gl, program);

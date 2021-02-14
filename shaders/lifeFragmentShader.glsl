@@ -4,6 +4,8 @@
 //   mediump is a good default
 precision mediump float;
 
+uniform vec3 u_surfaceColor;
+
 // Lighting
 uniform float u_ambLight;
 uniform vec3 u_lightDirection;
@@ -14,5 +16,5 @@ void main() {
 
   // Compute the directional light
   float light = dot(normal, u_lightDirection);
-  gl_FragColor = vec4(vec3(0, 1, 0.5) * (light + u_ambLight), 1);
+  gl_FragColor = vec4(vec3(u_surfaceColor) * (light + u_ambLight), 1);
 }

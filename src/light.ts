@@ -17,7 +17,7 @@ export interface Light {
  *   float u_ambLight  = Amount of ambient light, between 0.0 and 1.0
  */
 export class AmbientLight {
-  level: number;
+  public level: number;
 
   constructor(level: number) {
     this.level = level;
@@ -36,7 +36,7 @@ export class AmbientLight {
  *   vec3 u_lightDirection  = Reverse normalized direction of the light
  */
 export class DirectionalLight {
-  direction: vec3;
+  public direction: vec3;
 
   constructor(direction: vec3) {
     this.direction = direction;

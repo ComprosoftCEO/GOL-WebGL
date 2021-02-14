@@ -112,6 +112,71 @@ export function loadTexture(
   return texture;
 }
 
+export interface CubeTextureFaces {
+  positiveX: string;
+  negativeX: string;
+  positiveY: string;
+  negativeY: string;
+  positiveZ: string;
+  negativeZ: string;
+}
+
+export function loadCubeTexture(
+  gl: WebGLRenderingContext,
+  size: number,
+  { positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ }: CubeTextureFaces,
+): WebGLTexture {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
+  const faceInfos = [
+    {
+      target: gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+      url: positiveX,
+    },
+    {
+      target: gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+      url: negativeX,
+    },
+    {
+      target: gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+      url: positiveY,
+    },
+    {
+      target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      url: negativeY,
+    },
+    {
+      target: gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+      url: positiveZ,
+    },
+    {
+      target: gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+      url: negativeZ,
+    },
+  ];
+
+  for (const { target, url } of faceInfos) {
+    // setup each face so it's immediately renderable
+    gl.texImage2D(target, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+    // Asynchronously load an image
+    const image = new Image();
+    image.src = url;
+    image.addEventListener('load', function () {
+      // Now that the image has loaded make copy it to the texture.
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+      gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+    });
+  }
+
+  gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+  gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
+  return texture;
+}
+
 function isPowerOf2(value: number): boolean {
   return (value & (value - 1)) == 0;
 }

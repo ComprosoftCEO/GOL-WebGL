@@ -15,7 +15,7 @@ const TEXTURE_UNIFORM = 'u_textureSampler';
  * Represents a sphere object in the game
  */
 export class Sphere {
-  modelMatrix: mat4;
+  public modelMatrix: mat4;
 
   private triangles: Uint16Array;
   private verticesBuffer: WebGLBuffer;

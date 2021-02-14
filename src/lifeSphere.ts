@@ -9,6 +9,7 @@ const NORMAL_ATTRIBUTE = 'a_normal';
 const HEIGHT_ATTRIBUTE = 'a_height';
 const MODEL_UNIFORM = 'u_modelMatrix';
 const INVERSE_TRANSPOSE_MODEL_UNIFORM = 'u_inverseTranspose';
+const COLOR_UNIFORM = 'u_surfaceColor';
 
 const MIN_SCALE = -0.01;
 const MAX_SCALE = 0.1;
@@ -26,32 +27,35 @@ type Vec3Array = [number, number, number];
  * Draws the game of life to
  */
 export class LifeSphere {
-  #verticesBuffer: WebGLBuffer;
-  #normalsBuffer: WebGLBuffer;
-  #triangles: Uint16Array;
+  public modelMatrix: mat4;
+  public color: vec3;
 
-  #heightData: number[];
-  #heightBuffer: WebGLBuffer;
-  modelMatrix: mat4;
+  private verticesBuffer: WebGLBuffer;
+  private normalsBuffer: WebGLBuffer;
+  private triangles: Uint16Array;
+
+  private heightData: number[];
+  private heightBuffer: WebGLBuffer;
 
   static lifeSphereProgram: WebGLProgram;
   static loadShaders(gl: WebGLRenderingContext): void {
     LifeSphere.lifeSphereProgram = loadAndCompileShaders(gl, lifeVertexShader, lifeFragmentShader);
   }
 
-  constructor(gl: WebGLRenderingContext, order: number) {
+  constructor(gl: WebGLRenderingContext, order: number, color: vec3) {
     const { vertices, triangles } = icomesh(order);
 
     const { allVertices, allNormals } = computeVerticesNormals(vertices, triangles);
 
-    this.#heightData = [...Array(allVertices.length).fill(0)];
-    this.#heightBuffer = gl.createBuffer();
+    this.heightData = [...Array(allVertices.length).fill(0)];
+    this.heightBuffer = gl.createBuffer();
 
-    this.#verticesBuffer = createAndLoadBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(allVertices));
-    this.#normalsBuffer = createAndLoadBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(allNormals));
-    this.#triangles = triangles;
+    this.verticesBuffer = createAndLoadBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(allVertices));
+    this.normalsBuffer = createAndLoadBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(allNormals));
+    this.triangles = triangles;
 
     this.modelMatrix = mat4.create();
+    this.color = color;
   }
 
   static loadProgram(gl: WebGLRenderingContext): WebGLProgram {
@@ -60,22 +64,22 @@ export class LifeSphere {
   }
 
   numLifeCells(): number {
-    return this.#triangles.length / 3;
+    return this.triangles.length / 3;
   }
 
   updateHeight(current: boolean[], next: boolean[], interpolation: number): void {
-    for (let face = 0; face < this.#triangles.length / 3; face += 1) {
+    for (let face = 0; face < this.triangles.length / 3; face += 1) {
       for (let offset = 0; offset < SHOULD_SCALE.length; offset += 1) {
         if (!SHOULD_SCALE[offset]) {
           continue;
         }
 
         if (current[face] === next[face]) {
-          this.#heightData[face * 21 + offset] = current[face] ? MAX_SCALE : MIN_SCALE;
+          this.heightData[face * 21 + offset] = current[face] ? MAX_SCALE : MIN_SCALE;
         } else {
           const currentScale = current[face] ? MAX_SCALE : MIN_SCALE;
           const nextScale = next[face] ? MAX_SCALE : MIN_SCALE;
-          this.#heightData[face * 21 + offset] = linearInterpolation(currentScale, nextScale, interpolation);
+          this.heightData[face * 21 + offset] = linearInterpolation(currentScale, nextScale, interpolation);
         }
       }
     }
@@ -84,20 +88,20 @@ export class LifeSphere {
   draw(gl: WebGLRenderingContext): void {
     // Vertices
     const vertexAttribute = gl.getAttribLocation(LifeSphere.lifeSphereProgram, VERTEX_ATTRIBUTE);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.#verticesBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
     gl.vertexAttribPointer(vertexAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vertexAttribute);
 
     // Normals
     const normalAttribute = gl.getAttribLocation(LifeSphere.lifeSphereProgram, NORMAL_ATTRIBUTE);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.#normalsBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer);
     gl.vertexAttribPointer(normalAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(normalAttribute);
 
     // Height
     const heightAttribute = gl.getAttribLocation(LifeSphere.lifeSphereProgram, HEIGHT_ATTRIBUTE);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.#heightBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.#heightData), gl.STREAM_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.heightBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.heightData), gl.STREAM_DRAW);
     gl.vertexAttribPointer(heightAttribute, 1, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(heightAttribute);
 
@@ -116,9 +120,13 @@ export class LifeSphere {
     );
     gl.uniformMatrix4fv(inverseTransposeUniform, false, inverseTranspose);
 
+    // Color
+    const colorUniform = gl.getUniformLocation(LifeSphere.lifeSphereProgram, COLOR_UNIFORM);
+    gl.uniform3fv(colorUniform, this.color);
+
     // Draw all triangles
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.#verticesBuffer);
-    gl.drawArrays(gl.TRIANGLES, 0, (this.#triangles.length / 3) * 21);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, (this.triangles.length / 3) * 21);
   }
 }
 
