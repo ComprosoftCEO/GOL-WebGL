@@ -4,22 +4,18 @@
 //   mediump is a good default
 precision mediump float;
 
-uniform vec3 reverse_light_vector;
-uniform vec3 color;
+uniform vec3 u_lightColor;
+uniform vec3 u_lightDirection;
 
 varying vec3 v_normal;
 
 void main() {
-  // Compute static flat shading for this model
+  // Compute flat shading normal for this model
   vec3 U = dFdx(v_normal);
   vec3 V = dFdy(v_normal);
   vec3 normal = normalize(cross(U, V));
 
-  float light = dot(normal, reverse_light_vector);
-
-  gl_FragColor = vec4(color * light, 1);
-
-  // Lets multiply just the color portion (not the alpha)
-  // by the light
-  // gl_FragColor.rgb *= light;
+  // Compute the directional light
+  float light = dot(normal, u_lightDirection);
+  gl_FragColor = vec4(u_lightColor * light, 1);
 }
