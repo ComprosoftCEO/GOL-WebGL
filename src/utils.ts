@@ -58,6 +58,3 @@ export const loadAndCompileShaders = (
 
   return shaderProgram;
 };
-
-export const makeQuad = (a: number, b: number, c: number, d: number): number[] => [d, c, b, d, b, a];
-// 3,2,1,3,1,0

@@ -1,6 +1,6 @@
 import lifeVertexShader from 'shaders/lifeVertexShader.glsl';
 import lifeFragmentShader from 'shaders/lifeFragmentShader.glsl';
-import { createAndLoadBuffer, loadAndCompileShaders, makeQuad } from './utils';
+import { createAndLoadBuffer, loadAndCompileShaders } from './utils';
 import icomesh from 'icomesh';
 import { vec3, mat4 } from 'gl-matrix';
 
@@ -28,7 +28,6 @@ type Vec3Array = [number, number, number];
 export class LifeSphere {
   #verticesBuffer: WebGLBuffer;
   #normalsBuffer: WebGLBuffer;
-  #trianglesBuffer: WebGLBuffer;
   #triangles: Uint16Array;
 
   #heightData: number[];
@@ -43,14 +42,13 @@ export class LifeSphere {
   constructor(gl: WebGLRenderingContext, order: number) {
     const { vertices, triangles } = icomesh(order);
 
-    const { allVertices, allNormals, allIndexes } = computeVerticesNormals(vertices, triangles);
+    const { allVertices, allNormals } = computeVerticesNormals(vertices, triangles);
 
     this.#heightData = [...Array(allVertices.length).fill(0)];
     this.#heightBuffer = gl.createBuffer();
 
     this.#verticesBuffer = createAndLoadBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(allVertices));
     this.#normalsBuffer = createAndLoadBuffer(gl, gl.ARRAY_BUFFER, new Float32Array(allNormals));
-    this.#trianglesBuffer = createAndLoadBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(allIndexes));
     this.#triangles = triangles;
 
     this.modelMatrix = mat4.create();
@@ -119,25 +117,9 @@ export class LifeSphere {
     gl.uniformMatrix4fv(inverseTransposeUniform, false, inverseTranspose);
 
     // Draw all triangles
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.#trianglesBuffer);
-    gl.drawElements(gl.TRIANGLES, (this.#triangles.length / 3) * 21, gl.UNSIGNED_SHORT, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.#verticesBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, (this.#triangles.length / 3) * 21);
   }
-}
-
-function computeIndexes(triangles: Uint16Array, numVertices: number): Uint16Array {
-  const allIndexes = new Uint16Array(triangles.length * 7);
-
-  for (let index = 0; index < triangles.length; index += 3) {
-    const triangle = triangles.slice(index, index + 3);
-    const [a, b, c] = triangle;
-
-    allIndexes.set(triangle, index * 7);
-    allIndexes.set(makeQuad(a, b, b + numVertices, a + numVertices), index * 7 + 3);
-    allIndexes.set(makeQuad(a, c, c + numVertices, a + numVertices), index * 7 + 9);
-    allIndexes.set(makeQuad(b, c, c + numVertices, b + numVertices), index * 7 + 15);
-  }
-
-  return allIndexes;
 }
 
 // Compute all of the vertices and normal vectors for nubs
@@ -148,12 +130,10 @@ function computeVerticesNormals(
 ): {
   allVertices: Float32Array;
   allNormals: Float32Array;
-  allIndexes: Uint16Array;
 } {
   const numVertices = (triangles.length / 3) * 21 * 3;
   const allVertices = new Float32Array(numVertices);
   const allNormals = new Float32Array(numVertices);
-  const allIndexes = new Uint16Array(numVertices / 3);
 
   for (let index = 0; index < triangles.length; index += 3) {
     const indexes = triangles.slice(index, index + 3);
@@ -184,14 +164,9 @@ function computeVerticesNormals(
       ].flat(2),
       index * 21,
     );
-
-    allIndexes.set(
-      [...Array(21).keys()].map((key) => key + (index / 3) * 21),
-      (index / 3) * 21,
-    );
   }
 
-  return { allVertices, allNormals, allIndexes };
+  return { allVertices, allNormals };
 }
 
 function applyScale(vector: Vec3Array): Vec3Array {
@@ -202,6 +177,7 @@ function applyScale(vector: Vec3Array): Vec3Array {
   return scaledVector;
 }
 
+// 3,2,1,3,1,0
 function makeVectorQuad(a: Vec3Array, b: Vec3Array, c: Vec3Array, d: Vec3Array): Vec3Array[] {
   return [d, c, b, d, b, a];
 }

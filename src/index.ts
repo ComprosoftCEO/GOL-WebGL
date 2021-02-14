@@ -35,12 +35,13 @@ nextCells[21] = true;
 let timeOld = 0;
 let heightAmount = 0;
 const animate = (time: number): void => {
-  // Update the rotation matrices
   const dt = time - timeOld;
-  // mat4.rotateY(sphere.modelMatrix, sphere.modelMatrix, dt * 0.002);
-  // mat4.rotateY(lifeSphere.modelMatrix, lifeSphere.modelMatrix, dt * 0.002);
-  // mat4.rotateY(camera.viewMatrix, camera.viewMatrix, dt * -0.001);
   timeOld = time;
+
+  // Update the rotation matrices
+  mat4.rotateY(sphere.modelMatrix, sphere.modelMatrix, dt * 0.0001);
+  mat4.rotateY(lifeSphere.modelMatrix, lifeSphere.modelMatrix, dt * 0.0001);
+  // mat4.rotateY(camera.viewMatrix, camera.viewMatrix, dt * -0.001);
 
   const newHeightAmount = heightAmount + dt * 0.001;
   heightAmount = newHeightAmount % 1.0;
