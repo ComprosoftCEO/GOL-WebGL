@@ -34,6 +34,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.168",
     "gl-matrix": "^3.3.0",
     "icomesh": "^1.1.0"
   }

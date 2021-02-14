@@ -10,12 +10,9 @@ uniform vec3 u_lightDirection;
 varying vec3 v_normal;
 
 void main() {
-  // Compute flat shading normal for this model
-  vec3 U = dFdx(v_normal);
-  vec3 V = dFdy(v_normal);
-  vec3 normal = normalize(cross(U, V));
+  vec3 normal = normalize(v_normal);
 
   // Compute the directional light
   float light = dot(normal, u_lightDirection);
-  gl_FragColor = vec4(u_lightColor * max(light, 0.1), 1);
+  gl_FragColor = vec4(vec3(1, 0, 0) * max(light, 0.1), 1);
 }
