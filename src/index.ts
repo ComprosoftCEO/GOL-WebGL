@@ -6,6 +6,8 @@ import { PerspectiveCamera } from './camera';
 import { LifeSphere } from './lifeSphere';
 import { Skybox } from './skybox';
 import './canvas.css';
+import { Life, LifeRule } from './life';
+import { RuleTester } from 'eslint';
 
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
@@ -29,11 +31,10 @@ const lifeSphere = new LifeSphere(gl, 2, [1, 1, 0.5]);
 
 mat4.translate(camera.viewMatrix, camera.viewMatrix, [0, 0, -6]);
 
-let currentCells = Array(lifeSphere.numLifeCells()).fill(false);
-let nextCells = Array(lifeSphere.numLifeCells()).fill(false);
-nextCells[0] = true;
-nextCells[3] = true;
-nextCells[21] = true;
+const life = lifeSphere.createLife(new LifeRule(new Set([3]), new Set([2, 3, 4])));
+
+let currentCells = life.get();
+let nextCells = life.randomize(0.25);
 
 // Animation
 let timeOld = 0;
@@ -51,9 +52,7 @@ const animate = (time: number): void => {
   heightAmount = newHeightAmount % 1.0;
   if (Math.floor(newHeightAmount / 1.0) > 0) {
     currentCells = nextCells;
-    nextCells = Array(lifeSphere.numLifeCells())
-      .fill(0)
-      .map(() => Math.random() > 0.8);
+    nextCells = life.nextGeneration();
   }
   lifeSphere.updateHeight(currentCells, nextCells, heightAmount);
 

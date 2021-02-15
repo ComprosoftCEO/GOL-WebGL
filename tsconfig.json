@@ -5,6 +5,7 @@
     "module": "es6",
     "target": "es2015",
     "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
     "lib": [
       "es2019",
       "dom"

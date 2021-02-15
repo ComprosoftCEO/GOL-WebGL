@@ -3,6 +3,7 @@ import lifeFragmentShader from 'shaders/lifeFragmentShader.glsl';
 import { createAndLoadBuffer, loadAndCompileShaders } from './utils';
 import icomesh from 'icomesh';
 import { vec3, mat4 } from 'gl-matrix';
+import { Life, LifeRule } from './life';
 
 const VERTEX_ATTRIBUTE = 'a_vertex';
 const NORMAL_ATTRIBUTE = 'a_normal';
@@ -63,8 +64,8 @@ export class LifeSphere {
     return LifeSphere.lifeSphereProgram;
   }
 
-  numLifeCells(): number {
-    return this.triangles.length / 3;
+  createLife(rule: LifeRule): Life {
+    return new Life(rule, this.triangles);
   }
 
   updateHeight(current: boolean[], next: boolean[], interpolation: number): void {
