@@ -12,6 +12,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       title: 'WebGL Low-Level Project',
+      template: 'src/index.html',
     }),
   ],
   module: {

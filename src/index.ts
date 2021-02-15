@@ -5,9 +5,9 @@ import { AmbientLight, DirectionalLight } from './light';
 import { PerspectiveCamera } from './camera';
 import { LifeSphere } from './lifeSphere';
 import { Skybox } from './skybox';
-import './canvas.css';
-import { Life, LifeRule } from './life';
-import { RuleTester } from 'eslint';
+import { LifeRule } from './life';
+import './styles.css';
+import { initDomControls } from './dom';
 
 const canvas = document.createElement('canvas');
 document.body.appendChild(canvas);
@@ -27,18 +27,28 @@ const ambLight = new AmbientLight(0.2);
 const dirLight = new DirectionalLight([0.7, 0.5, 1]);
 const camera = new PerspectiveCamera(45, gl.canvas.width / gl.canvas.height, 1, 100);
 const sphere = new Sphere(gl, 4);
-const lifeSphere = new LifeSphere(gl, 2, [1, 1, 0.5]);
+const lifeSphere = new LifeSphere(gl, 3, [1, 1, 0.5]);
 
+// Adjust the scale and camera of our objects
+mat4.scale(sphere.modelMatrix, sphere.modelMatrix, [2, 2, 2]);
+mat4.scale(lifeSphere.modelMatrix, lifeSphere.modelMatrix, [2, 2, 2]);
 mat4.translate(camera.viewMatrix, camera.viewMatrix, [0, 0, -6]);
 
+// Life Animation
 const life = lifeSphere.createLife(new LifeRule(new Set([3]), new Set([2, 3, 4])));
-
 let currentCells = life.get();
 let nextCells = life.randomize(0.25);
+let heightAmount = 0;
+const resetLife = () => {
+  currentCells = Array(life.numCells()).fill(false);
+  nextCells = life.get();
+  heightAmount = 0;
+};
+
+initDomControls(lifeSphere.color, life, resetLife);
 
 // Animation
 let timeOld = 0;
-let heightAmount = 0;
 const animate = (time: number): void => {
   const dt = time - timeOld;
   timeOld = time;
@@ -46,8 +56,8 @@ const animate = (time: number): void => {
   // Update the rotation matrices
   mat4.rotateY(sphere.modelMatrix, sphere.modelMatrix, dt * 0.0001);
   mat4.rotateY(lifeSphere.modelMatrix, lifeSphere.modelMatrix, dt * 0.0001);
-  // mat4.rotateY(camera.viewMatrix, camera.viewMatrix, dt * -0.001);
 
+  // Fancy height animation for cells
   const newHeightAmount = heightAmount + dt * 0.001;
   heightAmount = newHeightAmount % 1.0;
   if (Math.floor(newHeightAmount / 1.0) > 0) {

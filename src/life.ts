@@ -1,5 +1,3 @@
-import lodash from 'lodash';
-
 /**
  * Represents a rule for the game of life
  */
@@ -23,6 +21,10 @@ export class LifeRule {
     this.begin = newSet;
   }
 
+  setBeginValues(values: Set<number>): void {
+    this.begin = values;
+  }
+
   toggleBegin(begin: number): void {
     const newSet = new Set(this.begin);
     if (newSet.has(begin)) {
@@ -43,6 +45,10 @@ export class LifeRule {
     }
 
     this.survive = newSet;
+  }
+
+  setSurviveValues(values: Set<number>): void {
+    this.survive = values;
   }
 
   toggleSurvive(survive: number): void {
@@ -79,6 +85,10 @@ export class Life {
 
     this.neighbors = computeNeighbors(triangles);
     this.currentCells = Array(this.neighbors.length).fill(false);
+  }
+
+  numCells(): number {
+    return this.currentCells.length;
   }
 
   randomize(probability = 0.5): boolean[] {

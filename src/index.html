@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <div class="controls">
+      <div>
+        <b>Life Color:</b>
+        <input type="color" id="color-picker" onchange="setColor()" />
+      </div>
+
+      <br />
+
+      <div>
+        <b>Rules:</b>
+        <input type="button" value="Random Rule" onclick="randomizeRule()"/>
+      </div>
+
+      <br />
+
+      <div>
+        <b>Begin:</b>
+        <% for (let i = 0; i <= 12; i += 1) { %>
+          <input type="checkbox" id="<%= `begin-${i}` %>" onchange="setRule()"/>
+          <label for="<%= `begin-${i}` %>"><%= i %></label>
+        <% } %>
+      </div>
+
+      <div>
+        <b>Survive:</b>
+        <% for (let i = 0; i <= 12; i += 1) { %>
+          <input type="checkbox" id="<%= `survive-${i}` %>" onchange="setRule()" />
+          <label for="<%= `survive-${i}` %>"><%= i %></label>
+        <% } %>
+      </div>
+
+      <br />
+
+      <div>
+        <b> Density:</b>
+        <input type="number" id="random-grid-density" min="0" max="1" step="any" value="0.25">
+        <input type="button" value="Randomize Grid" onclick="randomizeLife()"/>
+      </div>
+    </div>
+  </body>
+</html>
