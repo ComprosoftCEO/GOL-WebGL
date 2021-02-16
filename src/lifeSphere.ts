@@ -17,9 +17,9 @@ const MAX_SCALE = 0.1;
 
 const SHOULD_SCALE: boolean[] = [
   [true, true, true],
-  [false, false, true, false, true, true],
-  [false, false, true, false, true, true],
-  [false, false, true, false, true, true],
+  [true, false, false, true, false, true],
+  [true, false, false, true, false, true],
+  [true, false, false, true, false, true],
 ].flat();
 
 type Vec3Array = [number, number, number];
@@ -157,19 +157,19 @@ function computeVerticesNormals(
     allVertices.set(
       [
         [sphereVertex1, sphereVertex2, sphereVertex3],
-        makeVectorQuad(sphereVertex1, sphereVertex2, sphereVertex2, sphereVertex1),
-        makeVectorQuad(sphereVertex3, sphereVertex1, sphereVertex1, sphereVertex3),
-        makeVectorQuad(sphereVertex2, sphereVertex3, sphereVertex3, sphereVertex2),
-      ].flat(2),
+        makeVectorQuad(sphereVertex1, sphereVertex2, sphereVertex1, sphereVertex2),
+        makeVectorQuad(sphereVertex2, sphereVertex3, sphereVertex2, sphereVertex3),
+        makeVectorQuad(sphereVertex3, sphereVertex1, sphereVertex3, sphereVertex1),
+      ].flat(3),
       index * 21,
     );
 
     allNormals.set(
       [
         [scaledVertex1, scaledVertex2, scaledVertex3],
-        makeNormalsQuad(scaledVertex1, scaledVertex2, sphereVertex2, sphereVertex1),
-        makeNormalsQuad(scaledVertex3, scaledVertex1, sphereVertex1, sphereVertex3),
-        makeNormalsQuad(scaledVertex3, scaledVertex2, sphereVertex2, sphereVertex3),
+        makeNormalsQuad(scaledVertex1, scaledVertex2, sphereVertex1, sphereVertex2),
+        makeNormalsQuad(scaledVertex2, scaledVertex3, sphereVertex2, sphereVertex3),
+        makeNormalsQuad(scaledVertex3, scaledVertex1, sphereVertex3, sphereVertex1),
       ].flat(2),
       index * 21,
     );
@@ -186,9 +186,10 @@ function applyScale(vector: Vec3Array): Vec3Array {
   return scaledVector;
 }
 
-// 3,2,1,3,1,0
+// [a  b]
+// [c  d]
 function makeVectorQuad(a: Vec3Array, b: Vec3Array, c: Vec3Array, d: Vec3Array): Vec3Array[] {
-  return [d, c, b, d, b, a];
+  return [a, c, d, a, d, b];
 }
 
 const NORMAL_LOOKUP = [
