@@ -1,4 +1,4 @@
-// Make sure TypeScript recognizes glsl files as a string
+// TypeScript declarations for the 'icomesh' library
 declare module 'icomesh' {
   interface IcomeshResult {
     vertices: Float32Array;
